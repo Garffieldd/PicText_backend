@@ -11,9 +11,16 @@ const userSchema = new mongoose.Schema(
         password: {
             type: String
         },
-        record: {
-            type: [String]
-        }
+        record: [
+            {
+                image: {
+                    type: String
+                },
+                text: {
+                    type: String
+                }
+            }
+        ]
     },
     {
         timestamps:true,

@@ -5,6 +5,8 @@ const fs = require("fs");
 const ModelUser = require('./userModel');
 const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
+const cloudinary = require('cloudinary').v2;
+const axios = require('axios');
 
 dotenv.config();
 const app = express();
@@ -30,46 +32,45 @@ function getMimeType(filePath) {
     return extensionToMimeType[extension] || 'application/octet-stream'; 
   }
 
-//GEMINI AI IMAGE REQUEST LOGIC
-async function generateContentWithImage() {
-    try {
-      // Cargar la imagen desde el sistema de archivos
-      const imagePath = 'image (1).png';
-      const imageData = await fs.promises.readFile(imagePath);
-      const imageBase64 = imageData.toString('base64');
-      const mimeType = getMimeType(imagePath);
-  
-      // Definir las partes para la generación de contenido
-      const parts = [
-        { text: "Escribe todo el texto que aparece en el imagen:\n" },
-        {
-          inlineData: {
-            mimeType: mimeType,
-            data: imageBase64
-          }
-        },
-      ];
-  
-      // Generar contenido utilizando tanto la entrada de texto como de imagen
-      const result = await model.generateContent({ contents: [{ role: "user", parts }] });
-      const response = await result.response;
-      return response.text();
-    } catch (error) {
-      console.error('Error generating content:', error);
-    }
-  }
+
 
 //GEMINI IMAGE Promts
 
-router.get("/response", async (req,res) => {
-    try {
-      const generatedText = await generateContentWithImage();
-      console.log("Generated Text:", generatedText);
-      res.send(generatedText); // Enviar el texto obtenido como respuesta
-    } catch (error) {
-      console.error('Error al obtener respuesta:', error);
-      res.status(500).send("Error al obtener respuesta");
+router.post("/response", async (req, res) => {
+  try {
+    let textToUse = "Escribe todo el texto que aparece en la imagen:\n";
+
+    if (req.body.text && req.body.text.trim() !== "") {
+        textToUse = req.body.text.trim();
     }
+
+    // Descargar la imagen desde la URL de Cloudinary
+    const cloudinaryUrl = req.body.imagePath;
+    const response = await axios.get(cloudinaryUrl, { responseType: 'arraybuffer' });
+    const imageBase64 = Buffer.from(response.data, 'binary').toString('base64');
+    const mimeType = getMimeType(cloudinaryUrl);
+
+    // Definir las partes para la generación de contenido
+    const parts = [
+        { text: textToUse },
+        {
+            inlineData: {
+                mimeType: mimeType,
+                data: imageBase64 // Usar la imagen en formato base64
+            }
+        },
+    ];
+
+    // Generar contenido utilizando tanto la entrada de texto como de imagen
+    const result = await model.generateContent({ contents: [{ role: "user", parts }] });
+    const responses = await result.response;
+    const generatedText = responses.text();
+    console.log("Generated Text:", generatedText);
+    res.send(generatedText); // Enviar el texto obtenido como respuesta
+  } catch (error) {
+    console.error('Error al obtener respuesta:', error);
+    res.status(500).send("Error al obtener respuesta");
+  }
 });
 
 
@@ -97,7 +98,7 @@ router.post("/register", async (req, res) => {
         name,
         email,
         password: hashedPassword,
-        record,
+        record
       });
   
       res.status(201).json({ message: "Usuario creado con éxito.", user: newUser });
