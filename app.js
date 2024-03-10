@@ -7,6 +7,7 @@ const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
 const cloudinary = require('cloudinary').v2;
 const axios = require('axios');
+const cors = require('cors');
 
 dotenv.config();
 const app = express();
@@ -33,7 +34,7 @@ function getMimeType(filePath) {
   }
 
 
-
+  app.use(cors())
 //GEMINI IMAGE Promts
 
 router.post("/response", async (req, res) => {
@@ -84,6 +85,7 @@ router.put("/actualizar/:id", async (req,res) => {
 })
 
 // CREAR UN USUARIO
+
 router.post("/register", async (req, res) => {
     try {
       const { name, email, password, record } = req.body;
@@ -100,11 +102,13 @@ router.post("/register", async (req, res) => {
         password: hashedPassword,
         record
       });
-  
+
+      
+
       res.status(201).json({ message: "Usuario creado con éxito.", user: newUser });
     } catch (error) {
       console.error('Error al registrar nuevo usuario:', error);
-      res.status(500).json({ message: "Error al registrar nuevo usuario." });
+      res.status(500).json({ message: "Error al registrar nuev  o usuario." });
     }
   });
 
@@ -158,6 +162,7 @@ router.post('/login', async (req, res) => {
 
 app.use(express.json())
 app.use(router)
+
 
 app.listen(3001,() => {
     console.log("hola")
