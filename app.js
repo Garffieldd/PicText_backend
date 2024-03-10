@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt');
 const cloudinary = require('cloudinary').v2;
 const axios = require('axios');
 const cors = require('cors');
+const { ObjectId } = require('mongodb');
 
 dotenv.config();
 const app = express();
@@ -80,9 +81,20 @@ router.post("/response", async (req, res) => {
 //ACTUALIZAR LAS CONSULTAS DEL USUARIO
 
 router.put("/actualizar/:id", async (req,res) => {
-    const new_record = req.body; //ESTE BODY DEBERIA ACTUALIZAR EL ARREGLO "record" para añadir las consultas que se van haciendo cada vez que se descarga un pdf
+     //ESTE BODY DEBERIA ACTUALIZAR EL ARREGLO "record" para añadir las consultas que se van haciendo cada vez que se descarga un pdf
     const id = req.params.id;
-    const response = await ModelUser.findOneAndUpdate({_id: id},new_record)
+    const user = await ModelUser.findOne({ _id:id });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+  }
+
+    const record = user.record
+    const new_pair = req.body;
+    new_pair._id = new ObjectId();
+    record.push(new_pair)
+    
+    const response = await ModelUser.findOneAndUpdate({_id: id},{ record: record }, { new: true })
     res.send(response)
 })
 
