@@ -143,6 +143,7 @@ router.post('/login', async (req, res) => {
             acceso: true,
             message: "Entró",
             user: {
+              id: user.id,
               email: user.email,
               name: user.name,
             }
