@@ -50,6 +50,7 @@ router.post("/response", async (req, res) => {
     const response = await axios.get(cloudinaryUrl, { responseType: 'arraybuffer' });
     const imageBase64 = Buffer.from(response.data, 'binary').toString('base64');
     const mimeType = getMimeType(cloudinaryUrl);
+    console.log("hola", cloudinaryUrl);
 
     // Definir las partes para la generación de contenido
     const parts = [
@@ -63,11 +64,12 @@ router.post("/response", async (req, res) => {
     ];
 
     // Generar contenido utilizando tanto la entrada de texto como de imagen
+    console.log("hola",textToUse)
     const result = await model.generateContent({ contents: [{ role: "user", parts }] });
     const responses = await result.response;
     const generatedText = responses.text();
     console.log("Generated Text:", generatedText);
-    res.send(generatedText); // Enviar el texto obtenido como respuesta
+    res.json({ generatedText }); // Enviar el texto obtenido como respuesta
   } catch (error) {
     console.error('Error al obtener respuesta:', error);
     res.status(500).send("Error al obtener respuesta");
