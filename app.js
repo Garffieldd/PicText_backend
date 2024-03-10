@@ -130,8 +130,9 @@ router.get("/one/:id", async (req,res) =>{
 router.post('/login', async (req, res) => {
     try {
       // Buscar al usuario por correo en la base de datos MongoDB
-      const user = await ModelUser.findOne({ correo: req.params.email });
-        console.log(user)
+      const email_req = req.body.email
+      const user = await ModelUser.findOne({ email:email_req });
+      console.log(user)
       if (user) {
         // Verificar la contraseña
         const passwordMatch = await bcrypt.compare(req.body.password, user.password);
