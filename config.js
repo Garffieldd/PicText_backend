@@ -12,9 +12,9 @@ const dbconnect = async () => {
  }
         
 cloudinary.config({
-    cloud_name: 'vikingr-saga',
-    api_key: '921911162195225',
-    api_secret: 'KfcpJunBPHoteDsGprn6sN5m4gY'
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET
 });    
 
 module.exports = dbconnect;
