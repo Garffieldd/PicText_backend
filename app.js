@@ -117,12 +117,18 @@ router.post("/register", async (req, res) => {
         record
       });
 
+      const correo = email;
+
+        // Enviar el correo electrónico a Django
+        console.log("soy el correo de expresssssssss", correo)
+      await axios.post('http://127.0.0.1:8000/api/recibir_correo/', { correo });
+
       
 
       res.status(201).json({ message: "Usuario creado con éxito.", user: newUser });
     } catch (error) {
       console.error('Error al registrar nuevo usuario:', error);
-      res.status(500).json({ message: "Error al registrar nuev  o usuario." });
+      res.status(500).json({ message: "Error al registrar nuevo usuario." });
     }
   });
 
@@ -175,6 +181,8 @@ router.post('/login', async (req, res) => {
       res.status(400).send("Error al ingresar");
     }
   });
+
+
 
 app.use(express.json())
 app.use(router)
