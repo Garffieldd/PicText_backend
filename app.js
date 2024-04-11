@@ -121,9 +121,9 @@ router.post("/register", async (req, res) => {
 
         // Enviar el correo electrónico a Django
         console.log("soy el correo de expresssssssss", correo)
-      await axios.post('http://127.0.0.1:8000/api/recibir_correo/', { correo });
+      await axios.post('https://ait00ls-pronouncegenius.onrender.com/api/recibir_correo/', { correo });
 
-      
+
 
       res.status(201).json({ message: "Usuario creado con éxito.", user: newUser });
     } catch (error) {
